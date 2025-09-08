@@ -1,4 +1,4 @@
-package arsy.by;
+package by.arsy;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;

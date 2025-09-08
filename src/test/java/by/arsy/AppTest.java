@@ -1,4 +1,4 @@
-package arsy.by;
+package by.arsy;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
