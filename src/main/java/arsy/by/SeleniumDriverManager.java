@@ -18,9 +18,9 @@ public class SeleniumDriverManager {
 	private final Duration waitDurationSeconds;
 	private String openUrl = "";
 
-	public SeleniumDriverManager(boolean headlessOn, long waitDurationSeconds) {
+	public SeleniumDriverManager(boolean isHeadless, long waitDurationSeconds) {
 		this.waitDurationSeconds = Duration.ofSeconds(waitDurationSeconds);
-		driverInit(headlessOn);
+		driverInit(isHeadless);
 	}
 
 
@@ -106,10 +106,10 @@ public class SeleniumDriverManager {
 	}
 
 
-	private void driverInit(boolean headlessOn) {
+	private void driverInit(boolean isHeadless) {
 
 		ChromeOptions options = new ChromeOptions();
-		if (headlessOn) {
+		if (isHeadless) {
 			options.addArguments("--headless");
 			options.addArguments("--no-sandbox");
 		} else {
