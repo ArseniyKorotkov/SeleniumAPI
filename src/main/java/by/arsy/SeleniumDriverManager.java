@@ -52,12 +52,15 @@ public class SeleniumDriverManager {
 		createUserLocaleData();
 	}
 
+	public String parse(String xpath) {
+		WebElement element = chromeDriver.findElement(By.xpath(xpath));
+		return element.getText();
+	}
 
 	public Map<String, String> parse(HashSet<String> xpathSet) {
 		Map<String, String> parseMap = new HashMap<>();
 		for (String xpath : xpathSet) {
-			WebElement element = chromeDriver.findElement(By.xpath(xpath));
-			parseMap.put(xpath, element.getText());
+			parseMap.put(xpath, parse(xpath));
 		}
 		return parseMap;
 	}
