@@ -2,25 +2,54 @@ package arsy.by;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
+import org.openqa.selenium.WebDriverException;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.devtools.DevTools;
+import org.openqa.selenium.devtools.v126.network.Network;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
+import java.io.File;
 import java.time.Duration;
 import java.util.*;
 
 public class SeleniumDriverManager {
 
-	private ChromeDriver chromeDriver;
+	private static final String USER_AGENT_SCRIPT = "Mozilla/5.0 (%s) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/%s.0.0.0 Safari/537.36";
+	private static final String USER_AGENT_DEFAULT_VERSION = "115";
 	private final Duration waitDurationSeconds;
+	private final String userAgentVersion;
+	private ChromeDriver chromeDriver;
 	private String openUrl = "";
+	private String userAgent;
+	private String platform;
+	private String userAgentDataPlatform;
+	private String acceptLanguage;
+	private String[] languagesArray;
 
 	public SeleniumDriverManager(boolean isHeadless, long waitDurationSeconds) {
+		this(waitDurationSeconds, USER_AGENT_DEFAULT_VERSION);
+		driverInit(isHeadless, "");
+	}
+
+	public SeleniumDriverManager(
+			boolean isHeadless,
+			long waitDurationSeconds,
+			String chromeUserDataPath,
+			String userAgentVersion
+	) {
+		this(waitDurationSeconds, userAgentVersion);
+		driverInit(isHeadless, chromeUserDataPath);
+	}
+
+	private SeleniumDriverManager(long waitDurationSeconds, String userAgentVersion) {
 		this.waitDurationSeconds = Duration.ofSeconds(waitDurationSeconds);
-		driverInit(isHeadless);
+		this.userAgentVersion = userAgentVersion;
+		createUserPlatformData();
+		createUserLocaleData();
 	}
 
 
@@ -106,7 +135,59 @@ public class SeleniumDriverManager {
 	}
 
 
-	private void driverInit(boolean isHeadless) {
+	private void createUserPlatformData() {
+		String osName = System.getProperty("os.name").toLowerCase().trim();
+		String platformDescription;
+		if (osName.contains("win")) {
+			platformDescription = "Windows NT 10.0; Win64; x64";
+			platform = "Win32";
+			userAgentDataPlatform = "Windows";
+		} else if (osName.contains("mac")) {
+			platformDescription = "Macintosh; Intel Mac OS X 10_15_7";
+			platform = "MacIntel";
+			userAgentDataPlatform = "macOS";
+		} else if (osName.contains("nix") || osName.contains("nux") || osName.contains("aix")) {
+			platformDescription = "X11; Linux x86_64";
+			platform = "Linux x86_64";
+			userAgentDataPlatform = "Linux";
+		} else {
+			throw new IllegalStateException("Unknown OS: " + osName);
+		}
+
+		userAgent = String.format(USER_AGENT_SCRIPT, platformDescription, userAgentVersion);
+	}
+
+
+	private void createUserLocaleData() {
+		Locale locale = Locale.getDefault();
+		String languageTag = locale.toLanguageTag();
+		String language = locale.getLanguage();
+
+		if (!languageTag.equalsIgnoreCase(language)) {
+			acceptLanguage = languageTag + "," + language + ";q=0.9";
+			languagesArray = new String[] { languageTag, language };
+		} else {
+			acceptLanguage = languageTag;
+			languagesArray = new String[] { languageTag };
+		}
+	}
+
+
+	private void driverInit(boolean isHeadless, String chromeUserDataPath) {
+
+		ChromeOptions options = initOptions(isHeadless, chromeUserDataPath);
+		chromeDriver = new ChromeDriver(options);
+
+		String chromeSettingsScript = getSettingsScript();
+		chromeDriver.executeScript(chromeSettingsScript);
+
+		manageChromeDevTools();
+
+		chromeDriver.manage().timeouts().implicitlyWait(waitDurationSeconds);
+	}
+
+
+	private ChromeOptions initOptions(boolean isHeadless, String chromeUserDataPath) {
 
 		ChromeOptions options = new ChromeOptions();
 		if (isHeadless) {
@@ -115,10 +196,61 @@ public class SeleniumDriverManager {
 			options.addArguments("start-maximized");
 		}
 
-		chromeDriver = new ChromeDriver(options);
+		options.addArguments("user-agent=" + userAgent);
 
-		chromeDriver.manage().timeouts().implicitlyWait(waitDurationSeconds);
+		if (chromeUserDataPath == null || chromeUserDataPath.isEmpty()) {
+			return options;
+		}
 
+		File userData = new File(chromeUserDataPath);
+		if (!userData.exists() && !userData.mkdir()) {
+			throw new RuntimeException("Can`t find and create path:" + chromeUserDataPath);
+		}
+
+		options.addArguments(String.format("--user-data-dir=%s", userData.getAbsolutePath()));
+		options.addArguments("--profile-directory=Profile 1");
+
+		options.addArguments("--no-first-run");
+		options.addArguments("--no-default-browser-check");
+		options.addArguments("--disable-dev-shm-usage");
+		options.addArguments("--disable-features=OptimizationGuideModelDownloading,OptimizationHintsFetching");
+		options.setExperimentalOption("excludeSwitches", new String[]{"enable-automation"});
+		options.setExperimentalOption("useAutomationExtension", false);
+		options.addArguments("--disable-blink-features=AutomationControlled");
+		options.addArguments("--disable-infobars");
+
+		return options;
+	}
+
+
+	private String getSettingsScript() {
+		return "Object.defineProperty(navigator, 'webdriver', {get: () => undefined});" +
+			   "Object.defineProperty(navigator, 'plugins', {get: () => [1, 2, 3]});" +
+			   "Object.defineProperty(navigator, 'languages', {get: () => ['" + String.join("','", languagesArray) + "']});" +
+			   "Object.defineProperty(navigator, 'platform', {get: () => '" + platform + "'});" +
+			   "Object.defineProperty(navigator, 'userAgentData', {get: () => ({brands: [" +
+			   "{brand: 'Chromium', version: '" + userAgentVersion + "'}, " +
+			   "{brand: 'Google Chrome', version: '" + userAgentVersion + "'}, " +
+			   "{brand: 'Not A(Brand', version: '24'}], " +
+			   "mobile: false, " +
+			   "platform: '" + userAgentDataPlatform + "'" +
+			   "})});";
+	}
+
+
+	private void manageChromeDevTools() {
+		try {
+			DevTools devTools = chromeDriver.getDevTools();
+			devTools.createSession();
+			devTools.send(Network.setUserAgentOverride(
+					userAgent,
+					Optional.of(acceptLanguage),
+					Optional.of(userAgentDataPlatform),
+					Optional.empty()
+			));
+		} catch (IllegalStateException | WebDriverException e) {
+			System.err.println("Initialization error DevTools: " + e.getMessage());
+		}
 	}
 
 
