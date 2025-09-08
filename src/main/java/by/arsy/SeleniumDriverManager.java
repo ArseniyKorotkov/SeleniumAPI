@@ -1,9 +1,6 @@
 package by.arsy;
 
-import org.openqa.selenium.By;
-import org.openqa.selenium.Keys;
-import org.openqa.selenium.WebDriverException;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.devtools.DevTools;
@@ -81,6 +78,11 @@ public class SeleniumDriverManager {
 		for (String xpath : xpathArray) {
 			click(false, xpath);
 		}
+	}
+
+	public void move(String xpath) {
+		Actions actions = new Actions(chromeDriver);
+		actions.moveToElement(chromeDriver.findElement(By.xpath(xpath))).perform();
 	}
 
 
