@@ -47,7 +47,7 @@ public class SeleniumDriverManager {
 
 	private SeleniumDriverManager(long waitDurationSeconds, String userAgentVersion) {
 		this.waitDurationSeconds = Duration.ofSeconds(waitDurationSeconds);
-		this.userAgentVersion = userAgentVersion;
+		this.userAgentVersion = userAgentVersion.isEmpty() ? USER_AGENT_DEFAULT_VERSION : userAgentVersion;
 		createUserPlatformData();
 		createUserLocaleData();
 	}
