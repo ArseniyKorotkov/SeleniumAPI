@@ -49,8 +49,12 @@ public class SeleniumDriverManager {
 		createUserLocaleData();
 	}
 
+	public WebElement findElement(String xpath) {
+		return chromeDriver.findElement(By.xpath(xpath));
+	}
+
 	public String parse(String xpath) {
-		WebElement element = chromeDriver.findElement(By.xpath(xpath));
+		WebElement element = findElement(xpath);
 		return element.getText();
 	}
 
@@ -82,18 +86,18 @@ public class SeleniumDriverManager {
 
 	public void move(String xpath) {
 		Actions actions = new Actions(chromeDriver);
-		actions.moveToElement(chromeDriver.findElement(By.xpath(xpath))).perform();
+		actions.moveToElement(findElement(xpath)).perform();
 	}
 
 
 	public void setText(String xpath, String text) {
-		WebElement element = chromeDriver.findElement(By.xpath(xpath));
+		WebElement element = findElement(xpath);
 		element.clear();
 		element.sendKeys(text);
 	}
 
 	public void addText(String xpath, String text) {
-		WebElement element = chromeDriver.findElement(By.xpath(xpath));
+		WebElement element = findElement(xpath);
 		element.sendKeys(Keys.END);
 		element.sendKeys(text);
 	}
@@ -260,7 +264,7 @@ public class SeleniumDriverManager {
 
 
 	private void click(boolean newTab, String xpath) {
-		WebElement element = chromeDriver.findElement(By.xpath(xpath));
+		WebElement element = findElement(xpath);
 		WebDriverWait wait = new WebDriverWait(chromeDriver, waitDurationSeconds);
 		if (newTab) {
 			int tabsCount = getTabsCount();
