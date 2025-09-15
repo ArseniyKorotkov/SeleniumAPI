@@ -206,6 +206,14 @@ public class SeleniumDriverManager {
 		}
 
 		options.addArguments("user-agent=" + userAgent);
+		options.addArguments("--no-first-run");
+		options.addArguments("--no-default-browser-check");
+		options.addArguments("--disable-dev-shm-usage");
+		options.addArguments("--disable-features=OptimizationGuideModelDownloading,OptimizationHintsFetching");
+		options.setExperimentalOption("excludeSwitches", new String[]{"enable-automation"});
+		options.setExperimentalOption("useAutomationExtension", false);
+		options.addArguments("--disable-blink-features=AutomationControlled");
+		options.addArguments("--disable-infobars");
 
 		if (chromeUserDataPath == null || chromeUserDataPath.isEmpty()) {
 			return options;
@@ -218,15 +226,6 @@ public class SeleniumDriverManager {
 
 		options.addArguments(String.format("--user-data-dir=%s", userData.getAbsolutePath()));
 		options.addArguments("--profile-directory=Profile 1");
-
-		options.addArguments("--no-first-run");
-		options.addArguments("--no-default-browser-check");
-		options.addArguments("--disable-dev-shm-usage");
-		options.addArguments("--disable-features=OptimizationGuideModelDownloading,OptimizationHintsFetching");
-		options.setExperimentalOption("excludeSwitches", new String[]{"enable-automation"});
-		options.setExperimentalOption("useAutomationExtension", false);
-		options.addArguments("--disable-blink-features=AutomationControlled");
-		options.addArguments("--disable-infobars");
 
 		return options;
 	}
