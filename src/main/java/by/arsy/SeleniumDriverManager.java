@@ -53,9 +53,19 @@ public class SeleniumDriverManager {
 		return chromeDriver.findElement(By.xpath(xpath));
 	}
 
+	public List<WebElement> findElements(String xpath) {
+		return chromeDriver.findElements(By.xpath(xpath));
+	}
+
 	public String parse(String xpath) {
 		WebElement element = findElement(xpath);
 		return element.getText();
+	}
+
+	public List<String> parseAsList(String xpath) {
+		return findElements(xpath).stream()
+				.map(WebElement::getText)
+				.toList();
 	}
 
 	public Map<String, String> parse(HashSet<String> xpathSet) {
@@ -102,6 +112,9 @@ public class SeleniumDriverManager {
 		element.sendKeys(text);
 	}
 
+	public Object executeScript(String script, Object... args) {
+		return chromeDriver.executeScript(script, args);
+	}
 
 	public void openPage(String url) {
 		openUrl = url;
