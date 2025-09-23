@@ -213,7 +213,9 @@ public class SeleniumDriverManager {
 
 		ChromeOptions options = new ChromeOptions();
 		if (isHeadless) {
-			options.addArguments("--headless");
+			options.addArguments("--headless=new");
+			options.addArguments("--window-size=1920,1080");
+			options.addArguments("--no-sandbox");
 		} else {
 			options.addArguments("start-maximized");
 		}
