@@ -4,7 +4,7 @@ import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.devtools.DevTools;
-import org.openqa.selenium.devtools.v126.network.Network;
+import org.openqa.selenium.devtools.v139.network.Network;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -16,7 +16,7 @@ import java.util.*;
 public class SeleniumDriverManager {
 
 	private static final String USER_AGENT_SCRIPT = "Mozilla/5.0 (%s) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/%s.0.0.0 Safari/537.36";
-	private static final String USER_AGENT_DEFAULT_VERSION = "115";
+	private static final String USER_AGENT_DEFAULT_VERSION = "139";
 	private final Duration waitDurationSeconds;
 	private final String userAgentVersion;
 	private ChromeDriver chromeDriver;
