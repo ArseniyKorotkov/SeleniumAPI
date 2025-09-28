@@ -1,6 +1,9 @@
 package by.arsy;
 
-import org.openqa.selenium.*;
+import org.openqa.selenium.By;
+import org.openqa.selenium.Keys;
+import org.openqa.selenium.WebDriverException;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.devtools.DevTools;
@@ -9,8 +12,10 @@ import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
+import java.awt.*;
 import java.io.File;
 import java.time.Duration;
+import java.util.List;
 import java.util.*;
 
 public class SeleniumDriverManager {
@@ -214,8 +219,11 @@ public class SeleniumDriverManager {
 		ChromeOptions options = new ChromeOptions();
 		if (isHeadless) {
 			options.addArguments("--headless=new");
-			options.addArguments("--window-size=1920,1080");
-			options.addArguments("--no-sandbox");
+			options.addArguments("--window-size=2560,1440");
+			options.addArguments("--disable-gpu");
+			options.addArguments("--disable-notifications");
+			options.addArguments("--disable-popup-blocking");
+			options.addArguments("--remote-allow-origins=*");
 		} else {
 			options.addArguments("start-maximized");
 		}
