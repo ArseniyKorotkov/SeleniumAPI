@@ -121,6 +121,11 @@ public class SeleniumDriverManager {
 		return chromeDriver.executeScript(script, args);
 	}
 
+	public void clickFromJsonScript(String xpath) {
+		WebElement element = findElement(xpath);
+		executeScript("arguments[0].click();", element);
+	}
+
 	public void openPage(String url) {
 		openUrl = url;
 		chromeDriver.get(url);
